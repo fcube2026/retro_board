@@ -214,9 +214,24 @@ pnpm install
 
 ### 3. Setup Environment Variables
 
+Copy the example files and fill in the values:
+
+```bash
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
 ```
-DATABASE_URL=
-JWT_SECRET=
+
+**`apps/api/.env`** (required):
+```
+DATABASE_URL=postgresql://user:password@host:5432/retro_board?pgbouncer=true
+DIRECT_URL=postgresql://user:password@host:5432/retro_board
+PORT=3001
+```
+
+**`apps/web/.env`** (only needed in production):
+```
+# Point to your deployed API URL; leave unset for local dev (proxy handles it)
+VITE_API_URL=https://your-api.vercel.app
 ```
 
 ### 4. Run Migrations
