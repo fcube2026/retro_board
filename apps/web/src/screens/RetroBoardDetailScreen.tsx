@@ -51,7 +51,7 @@ const RetroBoardDetailScreen: React.FC<RetroBoardDetailScreenProps> = ({
     setAddingSection(true);
     setSectionError('');
     try {
-      await createSection(boardId, newSectionTitle.trim(), userName);
+      await createSection(boardId, newSectionTitle.trim());
       setNewSectionTitle('');
       setIsAddingSection(false);
       fetchBoard();
@@ -82,7 +82,7 @@ const RetroBoardDetailScreen: React.FC<RetroBoardDetailScreenProps> = ({
   };
 
   const handleAddItem = async (sectionId: string, content: string) => {
-    await createItem(boardId, sectionId, content, userId, userName);
+    await createItem(boardId, sectionId, content);
     fetchBoard();
   };
 

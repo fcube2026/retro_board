@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import UserSetup from './components/UserSetup';
 import RetroBoardListScreen from './screens/RetroBoardListScreen';
 import RetroBoardDetailScreen from './screens/RetroBoardDetailScreen';
+import { setUserHeaders } from './api/retroApi';
 
 type View = 'list' | 'detail';
 
@@ -24,6 +25,7 @@ const App: React.FC = () => {
       setUserName(storedName);
       setUserId(storedId);
       setUserEmail(storedEmail);
+      setUserHeaders(storedId, storedName);
     }
   }, []);
 
@@ -35,6 +37,7 @@ const App: React.FC = () => {
     setUserName(name);
     setUserId(newUserId);
     setUserEmail(email);
+    setUserHeaders(newUserId, name);
   };
 
   const handleSelectBoard = (boardId: string) => {

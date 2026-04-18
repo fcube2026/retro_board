@@ -26,7 +26,7 @@ export class RetroService {
     const board = await this.prisma.retroBoard.create({
       data: {
         title: dto.title,
-        createdBy: dto.createdBy || user.id,
+        createdBy: user.id,
       },
     });
 

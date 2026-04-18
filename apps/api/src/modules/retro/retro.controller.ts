@@ -28,8 +28,11 @@ export class RetroController {
   private getUser(req: any): RequestUser {
     return (
       req.user ?? {
-        id: 'default-user',
-        name: process.env.DEFAULT_USER_NAME || 'Test User',
+        id: (req.headers?.['x-user-id'] as string) || 'default-user',
+        name:
+          (req.headers?.['x-user-name'] as string) ||
+          process.env.DEFAULT_USER_NAME ||
+          'Test User',
       }
     );
   }
