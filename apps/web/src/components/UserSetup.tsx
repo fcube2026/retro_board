@@ -1,25 +1,39 @@
 import React, { useState } from 'react';
 
 interface UserSetupProps {
-  onSubmit: (name: string) => void;
+  onSubmit: (name: string, email: string) => void;
 }
 
 const UserSetup: React.FC<UserSetupProps> = ({ onSubmit }) => {
   const [name, setName] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [nameError, setNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = name.trim();
-    if (!trimmed) {
-      setError('Please enter your name');
-      return;
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    let valid = true;
+
+    if (!trimmedName) {
+      setNameError('Please enter your name');
+      valid = false;
+    } else if (trimmedName.length < 2) {
+      setNameError('Name must be at least 2 characters');
+      valid = false;
     }
-    if (trimmed.length < 2) {
-      setError('Name must be at least 2 characters');
-      return;
+
+    if (!trimmedEmail) {
+      setEmailError('Please enter your email');
+      valid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setEmailError('Please enter a valid email address');
+      valid = false;
     }
-    onSubmit(trimmed);
+
+    if (!valid) return;
+    onSubmit(trimmedName, trimmedEmail);
   };
 
   return (
@@ -28,7 +42,7 @@ const UserSetup: React.FC<UserSetupProps> = ({ onSubmit }) => {
         <div style={iconStyle}>👋</div>
         <h2 style={{ marginBottom: 8, color: '#1a1a2e', fontSize: 24 }}>Welcome to Retro Board</h2>
         <p style={{ color: '#666', marginBottom: 24, fontSize: 14 }}>
-          Enter your name to get started. This will be shown on cards you create.
+          Enter your name and email to get started. Your name will be shown on cards you create.
         </p>
         <form onSubmit={handleSubmit}>
           <input
@@ -37,12 +51,23 @@ const UserSetup: React.FC<UserSetupProps> = ({ onSubmit }) => {
             value={name}
             onChange={(e) => {
               setName(e.target.value);
-              setError('');
+              setNameError('');
             }}
             style={inputStyle}
             autoFocus
           />
-          {error && <p style={{ color: '#e53e3e', fontSize: 12, marginTop: 4 }}>{error}</p>}
+          {nameError && <p style={{ color: '#e53e3e', fontSize: 12, marginTop: 4 }}>{nameError}</p>}
+          <input
+            type="email"
+            placeholder="Your email..."
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setEmailError('');
+            }}
+            style={{ ...inputStyle, marginTop: 12 }}
+          />
+          {emailError && <p style={{ color: '#e53e3e', fontSize: 12, marginTop: 4 }}>{emailError}</p>}
           <button type="submit" style={buttonStyle}>
             Get Started →
           </button>
