@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model RetroBoard {
+  id        String   @id @default(uuid())
+  title     String
+  createdBy String
+  createdAt DateTime @default(now())
+  sections  RetroSection[]
+  items     RetroItem[]
+}
+
+model RetroSection {
+  id        String   @id @default(uuid())
+  boardId   String
+  title     String
+  order     Int      @default(0)
+  createdBy String
+  createdAt DateTime @default(now())
+  board     RetroBoard @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  items     RetroItem[]
+}
+
+model RetroItem {
+  id            String   @id @default(uuid())
+  boardId       String
+  sectionId     String
+  content       String
+  createdBy     String
+  createdByName String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  board         RetroBoard   @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  section       RetroSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+}

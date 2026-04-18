@@ -1,0 +1,9 @@
+{
+  "name": "retro-board",
+  "private": true,
+  "scripts": {
+    "dev:api": "cd apps/api && npm run dev",
+    "dev:web": "cd apps/web && npm run dev",
+    "install:all": "npm install --prefix apps/api && npm install --prefix apps/web"
+  }
+}
