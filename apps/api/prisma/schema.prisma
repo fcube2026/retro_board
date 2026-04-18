@@ -1,0 +1,67 @@
+// Prisma schema for the Retro Board.
+// Default datasource is SQLite for easy local development. Switch the
+// provider to "postgresql" and update DATABASE_URL for production.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User model is kept for future JWT integration. The retro entities store
+// createdBy / createdByName as denormalised strings so the fallback
+// header-based user context works without requiring a real User row.
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?  @unique
+  createdAt DateTime @default(now())
+}
+
+model RetroBoard {
+  id        String   @id @default(uuid())
+  title     String
+  createdBy String
+  createdAt DateTime @default(now())
+
+  sections RetroSection[]
+  items    RetroItem[]
+
+  @@index([createdBy])
+}
+
+model RetroSection {
+  id        String   @id @default(uuid())
+  boardId   String
+  title     String
+  type      String?
+  color     String?
+  order     Int      @default(0)
+  createdBy String
+  createdAt DateTime @default(now())
+
+  board RetroBoard  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  items RetroItem[]
+
+  @@index([boardId, order])
+}
+
+model RetroItem {
+  id            String   @id @default(uuid())
+  boardId       String
+  sectionId     String
+  content       String
+  createdBy     String
+  createdByName String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  board   RetroBoard   @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  section RetroSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@index([boardId])
+  @@index([sectionId])
+}

@@ -1,0 +1,16 @@
+node_modules
+dist
+build
+.env
+.env.local
+*.log
+.DS_Store
+coverage
+.nyc_output
+.turbo
+.cache
+
+# Prisma SQLite
+apps/api/prisma/*.db
+apps/api/prisma/*.db-journal
+apps/api/prisma/migrations/dev.db*

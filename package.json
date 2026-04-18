@@ -1,0 +1,25 @@
+{
+  "name": "retro-board",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Collaborative Retro Board monorepo (NestJS API + React Web)",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:api dev:web",
+    "dev:api": "npm --workspace apps/api run dev",
+    "dev:web": "npm --workspace apps/web run dev",
+    "build": "npm-run-all build:api build:web",
+    "build:api": "npm --workspace apps/api run build",
+    "build:web": "npm --workspace apps/web run build",
+    "lint": "npm-run-all --parallel lint:api lint:web",
+    "lint:api": "npm --workspace apps/api run lint",
+    "lint:web": "npm --workspace apps/web run lint",
+    "prisma:generate": "npm --workspace apps/api run prisma:generate",
+    "prisma:migrate": "npm --workspace apps/api run prisma:migrate"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}
