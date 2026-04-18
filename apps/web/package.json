@@ -4,6 +4,7 @@
   "description": "Retro Board Frontend",
   "scripts": {
     "dev": "vite",
+    "start": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
