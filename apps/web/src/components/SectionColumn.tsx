@@ -20,6 +20,7 @@ const SectionColumn: React.FC<SectionColumnProps> = ({
   items,
   color,
   currentUserId,
+  currentUserName,
   onAddItem,
   onUpdateItem,
   onDeleteItem,
@@ -128,7 +129,9 @@ const SectionColumn: React.FC<SectionColumnProps> = ({
               Cancel
             </button>
           </div>
-          <p style={{ fontSize: 11, color: '#888', marginTop: 4 }}>Ctrl+Enter to save</p>
+          <p style={{ fontSize: 11, color: '#888', marginTop: 4 }}>
+            Adding as <strong>{currentUserName}</strong> · Ctrl+Enter to save
+          </p>
         </div>
       ) : (
         <button onClick={() => setIsAddingItem(true)} style={addCardButtonStyle}>

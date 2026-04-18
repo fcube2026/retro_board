@@ -11,6 +11,7 @@ const generateUserId = (): string => {
 
 const App: React.FC = () => {
   const [userName, setUserName] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>('');
   const [currentView, setCurrentView] = useState<View>('list');
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
@@ -18,18 +19,22 @@ const App: React.FC = () => {
   useEffect(() => {
     const storedName = localStorage.getItem('retroUserName');
     const storedId = localStorage.getItem('retroUserId');
-    if (storedName && storedId) {
+    const storedEmail = localStorage.getItem('retroUserEmail');
+    if (storedName && storedId && storedEmail) {
       setUserName(storedName);
       setUserId(storedId);
+      setUserEmail(storedEmail);
     }
   }, []);
 
-  const handleUserSetup = (name: string) => {
+  const handleUserSetup = (name: string, email: string) => {
     const newUserId = generateUserId();
     localStorage.setItem('retroUserName', name);
     localStorage.setItem('retroUserId', newUserId);
+    localStorage.setItem('retroUserEmail', email);
     setUserName(name);
     setUserId(newUserId);
+    setUserEmail(email);
   };
 
   const handleSelectBoard = (boardId: string) => {
