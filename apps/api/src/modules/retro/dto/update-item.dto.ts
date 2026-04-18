@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class UpdateItemDto {
   @IsOptional()
@@ -6,6 +6,6 @@ export class UpdateItemDto {
   content?: string;
 
   @IsOptional()
-  @IsString()
+  @IsUUID()
   sectionId?: string;
 }

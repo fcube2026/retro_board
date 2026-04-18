@@ -20,8 +20,12 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(3001);
-  console.log('Retro Board API running on http://localhost:3001');
+  // ✅ Use env variable or fallback
+  const port = process.env.PORT || 3001;
+
+  await app.listen(port);
+
+  console.log(`🚀 Retro Board API running on http://localhost:${port}`);
 }
 
 bootstrap();

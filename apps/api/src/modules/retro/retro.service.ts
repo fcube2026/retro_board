@@ -8,20 +8,25 @@ import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 
 const DEFAULT_SECTIONS = [
-  { title: '✅ What went well', order: 0 },
-  { title: "❌ What didn't go well", order: 1 },
-  { title: '🔧 Action Items', order: 2 },
+  { title: '✅ What went well', order: 0, type: 'DEFAULT' as const },
+  { title: "❌ What didn't go well", order: 1, type: 'DEFAULT' as const },
+  { title: '🔧 Action Items', order: 2, type: 'DEFAULT' as const },
 ];
+
+type CurrentUser = {
+  id: string;
+  name: string;
+};
 
 @Injectable()
 export class RetroService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createBoard(dto: CreateBoardDto) {
+  async createBoard(dto: CreateBoardDto, user: CurrentUser) {
     const board = await this.prisma.retroBoard.create({
       data: {
         title: dto.title,
-        createdBy: dto.createdBy,
+        createdBy: user.id,
       },
     });
 
@@ -32,7 +37,8 @@ export class RetroService {
             boardId: board.id,
             title: section.title,
             order: section.order,
-            createdBy: dto.createdBy,
+            type: section.type,
+            createdBy: user.id,
           },
         }),
       ),
@@ -46,6 +52,9 @@ export class RetroService {
       orderBy: { createdAt: 'desc' },
       include: {
         _count: { select: { items: true } },
+        sections: {
+          orderBy: { order: 'asc' },
+        },
       },
     });
   }
@@ -76,8 +85,11 @@ export class RetroService {
     return board;
   }
 
-  async createSection(dto: CreateSectionDto) {
-    const board = await this.prisma.retroBoard.findUnique({ where: { id: dto.boardId } });
+  async createSection(dto: CreateSectionDto, user: CurrentUser) {
+    const board = await this.prisma.retroBoard.findUnique({
+      where: { id: dto.boardId },
+    });
+
     if (!board) {
       throw new NotFoundException(`Board with id ${dto.boardId} not found`);
     }
@@ -87,20 +99,25 @@ export class RetroService {
       _max: { order: true },
     });
 
-    const order = dto.order ?? (maxOrder._max.order !== null ? maxOrder._max.order + 1 : 0);
+    const order =
+      dto.order ?? (maxOrder._max.order !== null ? maxOrder._max.order + 1 : 0);
 
     return this.prisma.retroSection.create({
       data: {
         boardId: dto.boardId,
         title: dto.title,
         order,
-        createdBy: dto.createdBy,
+        type: 'CUSTOM',
+        createdBy: user.id,
       },
     });
   }
 
   async updateSection(id: string, dto: UpdateSectionDto) {
-    const section = await this.prisma.retroSection.findUnique({ where: { id } });
+    const section = await this.prisma.retroSection.findUnique({
+      where: { id },
+    });
+
     if (!section) {
       throw new NotFoundException(`Section with id ${id} not found`);
     }
@@ -112,12 +129,16 @@ export class RetroService {
   }
 
   async deleteSection(id: string) {
-    const section = await this.prisma.retroSection.findUnique({ where: { id } });
+    const section = await this.prisma.retroSection.findUnique({
+      where: { id },
+    });
+
     if (!section) {
       throw new NotFoundException(`Section with id ${id} not found`);
     }
 
     await this.prisma.retroSection.delete({ where: { id } });
+
     return { message: 'Section deleted successfully' };
   }
 
@@ -130,11 +151,15 @@ export class RetroService {
     );
 
     await this.prisma.$transaction(updates);
+
     return { message: 'Sections reordered successfully' };
   }
 
   async listSections(boardId: string) {
-    const board = await this.prisma.retroBoard.findUnique({ where: { id: boardId } });
+    const board = await this.prisma.retroBoard.findUnique({
+      where: { id: boardId },
+    });
+
     if (!board) {
       throw new NotFoundException(`Board with id ${boardId} not found`);
     }
@@ -150,8 +175,11 @@ export class RetroService {
     });
   }
 
-  async createItem(dto: CreateItemDto) {
-    const section = await this.prisma.retroSection.findUnique({ where: { id: dto.sectionId } });
+  async createItem(dto: CreateItemDto, user: CurrentUser) {
+    const section = await this.prisma.retroSection.findUnique({
+      where: { id: dto.sectionId },
+    });
+
     if (!section) {
       throw new NotFoundException(`Section with id ${dto.sectionId} not found`);
     }
@@ -161,15 +189,18 @@ export class RetroService {
         boardId: dto.boardId,
         sectionId: dto.sectionId,
         content: dto.content,
-        createdBy: dto.createdBy,
-        createdByName: dto.createdByName,
+        createdBy: user.id,
+        createdByName: user.name,
       },
       include: { section: true },
     });
   }
 
   async listItems(boardId: string) {
-    const board = await this.prisma.retroBoard.findUnique({ where: { id: boardId } });
+    const board = await this.prisma.retroBoard.findUnique({
+      where: { id: boardId },
+    });
+
     if (!board) {
       throw new NotFoundException(`Board with id ${boardId} not found`);
     }
@@ -182,7 +213,10 @@ export class RetroService {
   }
 
   async updateItem(id: string, dto: UpdateItemDto) {
-    const item = await this.prisma.retroItem.findUnique({ where: { id } });
+    const item = await this.prisma.retroItem.findUnique({
+      where: { id },
+    });
+
     if (!item) {
       throw new NotFoundException(`Item with id ${id} not found`);
     }
@@ -195,12 +229,16 @@ export class RetroService {
   }
 
   async deleteItem(id: string) {
-    const item = await this.prisma.retroItem.findUnique({ where: { id } });
+    const item = await this.prisma.retroItem.findUnique({
+      where: { id },
+    });
+
     if (!item) {
       throw new NotFoundException(`Item with id ${id} not found`);
     }
 
     await this.prisma.retroItem.delete({ where: { id } });
+
     return { message: 'Item deleted successfully' };
   }
 }

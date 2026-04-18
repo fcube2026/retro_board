@@ -3,39 +3,60 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum RetroSectionType {
+  DEFAULT
+  CUSTOM
 }
 
 model RetroBoard {
-  id        String   @id @default(uuid())
+  id        String         @id @default(uuid())
   title     String
   createdBy String
-  createdAt DateTime @default(now())
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
   sections  RetroSection[]
   items     RetroItem[]
+
+  @@map("retro_boards")
 }
 
 model RetroSection {
-  id        String   @id @default(uuid())
+  id        String           @id @default(uuid())
   boardId   String
   title     String
-  order     Int      @default(0)
+  type      RetroSectionType @default(CUSTOM)
+  order     Int              @default(0)
   createdBy String
-  createdAt DateTime @default(now())
-  board     RetroBoard @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  board     RetroBoard       @relation(fields: [boardId], references: [id], onDelete: Cascade)
   items     RetroItem[]
+
+  @@index([boardId, order])
+  @@map("retro_sections")
 }
 
 model RetroItem {
-  id            String   @id @default(uuid())
+  id            String       @id @default(uuid())
   boardId       String
   sectionId     String
   content       String
   createdBy     String
   createdByName String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
   board         RetroBoard   @relation(fields: [boardId], references: [id], onDelete: Cascade)
   section       RetroSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@index([boardId, createdAt])
+  @@index([sectionId, createdAt])
+  @@map("retro_items")
 }

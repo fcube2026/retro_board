@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsNumber } from 'class-validator';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class UpdateSectionDto {
   @IsOptional()
@@ -6,6 +6,6 @@ export class UpdateSectionDto {
   title?: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   order?: number;
 }

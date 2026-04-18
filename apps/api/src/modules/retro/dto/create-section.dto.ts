@@ -1,8 +1,7 @@
-import { IsNotEmpty, IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateSectionDto {
-  @IsString()
-  @IsNotEmpty()
+  @IsUUID()
   boardId: string;
 
   @IsString()
@@ -10,10 +9,6 @@ export class CreateSectionDto {
   title: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   order?: number;
-
-  @IsString()
-  @IsNotEmpty()
-  createdBy: string;
 }

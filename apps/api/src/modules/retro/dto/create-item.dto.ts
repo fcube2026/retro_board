@@ -1,23 +1,13 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class CreateItemDto {
-  @IsString()
-  @IsNotEmpty()
+  @IsUUID()
   boardId: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsUUID()
   sectionId: string;
 
   @IsString()
   @IsNotEmpty()
   content: string;
-
-  @IsString()
-  @IsNotEmpty()
-  createdBy: string;
-
-  @IsString()
-  @IsNotEmpty()
-  createdByName: string;
 }

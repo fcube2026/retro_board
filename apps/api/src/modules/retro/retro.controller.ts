@@ -1,13 +1,12 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
   Body,
+  Controller,
+  Delete,
+  Get,
   Param,
-  HttpCode,
-  HttpStatus,
+  Patch,
+  Post,
+  Req,
 } from '@nestjs/common';
 import { RetroService } from './retro.service';
 import { CreateBoardDto } from './dto/create-board.dto';
@@ -17,15 +16,27 @@ import { ReorderSectionsDto } from './dto/reorder-sections.dto';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 
+type RequestUser = {
+  id: string;
+  name: string;
+};
+
 @Controller('retro')
 export class RetroController {
   constructor(private readonly retroService: RetroService) {}
 
-  // Boards
+  private getUser(req: any): RequestUser {
+    return (
+      req.user ?? {
+        id: 'default-user',
+        name: process.env.DEFAULT_USER_NAME || 'Test User',
+      }
+    );
+  }
+
   @Post('boards')
-  @HttpCode(HttpStatus.CREATED)
-  createBoard(@Body() dto: CreateBoardDto) {
-    return this.retroService.createBoard(dto);
+  createBoard(@Body() dto: CreateBoardDto, @Req() req: any) {
+    return this.retroService.createBoard(dto, this.getUser(req));
   }
 
   @Get('boards')
@@ -38,11 +49,9 @@ export class RetroController {
     return this.retroService.getBoardById(id);
   }
 
-  // Sections — reorder MUST come before /:id
   @Post('sections')
-  @HttpCode(HttpStatus.CREATED)
-  createSection(@Body() dto: CreateSectionDto) {
-    return this.retroService.createSection(dto);
+  createSection(@Body() dto: CreateSectionDto, @Req() req: any) {
+    return this.retroService.createSection(dto, this.getUser(req));
   }
 
   @Patch('sections/reorder')
@@ -61,16 +70,13 @@ export class RetroController {
   }
 
   @Delete('sections/:id')
-  @HttpCode(HttpStatus.OK)
   deleteSection(@Param('id') id: string) {
     return this.retroService.deleteSection(id);
   }
 
-  // Items
   @Post('items')
-  @HttpCode(HttpStatus.CREATED)
-  createItem(@Body() dto: CreateItemDto) {
-    return this.retroService.createItem(dto);
+  createItem(@Body() dto: CreateItemDto, @Req() req: any) {
+    return this.retroService.createItem(dto, this.getUser(req));
   }
 
   @Get('items/:boardId')
@@ -84,7 +90,6 @@ export class RetroController {
   }
 
   @Delete('items/:id')
-  @HttpCode(HttpStatus.OK)
   deleteItem(@Param('id') id: string) {
     return this.retroService.deleteItem(id);
   }

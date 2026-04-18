@@ -1,7 +1,8 @@
-import { IsArray, IsString } from 'class-validator';
+import { ArrayMinSize, IsArray, IsUUID } from 'class-validator';
 
 export class ReorderSectionsDto {
   @IsArray()
-  @IsString({ each: true })
+  @ArrayMinSize(1)
+  @IsUUID('4', { each: true })
   sectionIds: string[];
 }
