@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Retro Board API",
   "scripts": {
+    "postinstall": "prisma generate",
     "build": "prisma generate && nest build",
     "start": "node dist/main",
     "dev": "prisma generate && ts-node-dev --respawn --transpile-only src/main.ts",
