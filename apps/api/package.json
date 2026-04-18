@@ -5,7 +5,7 @@
   "scripts": {
     "build": "prisma generate && nest build",
     "start": "node dist/main",
-    "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+    "dev": "prisma generate && ts-node-dev --respawn --transpile-only src/main.ts",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev"
