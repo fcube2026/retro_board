@@ -26,10 +26,16 @@ export class RetroController {
   constructor(private readonly retroService: RetroService) {}
 
   private getUser(req: any): RequestUser {
+    // When no authentication middleware is in place, fall back to identity
+    // supplied via custom request headers set by the frontend after user setup.
+    // Replace this with JWT/session-based auth for production use.
     return (
       req.user ?? {
-        id: 'default-user',
-        name: process.env.DEFAULT_USER_NAME || 'Test User',
+        id: (req.headers?.['x-user-id'] as string) || 'default-user',
+        name:
+          (req.headers?.['x-user-name'] as string) ||
+          process.env.DEFAULT_USER_NAME ||
+          'Test User',
       }
     );
   }

@@ -2,9 +2,14 @@ import axios from 'axios';
 import { RetroBoard, RetroSection, RetroItem } from '../types/retro.types';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: { 'Content-Type': 'application/json' },
 });
+
+export const setUserHeaders = (userId: string, userName: string) => {
+  api.defaults.headers.common['x-user-id'] = userId;
+  api.defaults.headers.common['x-user-name'] = userName;
+};
 
 // Boards
 export const getBoards = async (): Promise<RetroBoard[]> => {
@@ -12,11 +17,8 @@ export const getBoards = async (): Promise<RetroBoard[]> => {
   return data;
 };
 
-export const createBoard = async (
-  title: string,
-  createdBy: string,
-): Promise<RetroBoard> => {
-  const { data } = await api.post('/retro/boards', { title, createdBy });
+export const createBoard = async (title: string): Promise<RetroBoard> => {
+  const { data } = await api.post('/retro/boards', { title });
   return data;
 };
 
@@ -34,9 +36,8 @@ export const getSections = async (boardId: string): Promise<RetroSection[]> => {
 export const createSection = async (
   boardId: string,
   title: string,
-  createdBy: string,
 ): Promise<RetroSection> => {
-  const { data } = await api.post('/retro/sections', { boardId, title, createdBy });
+  const { data } = await api.post('/retro/sections', { boardId, title });
   return data;
 };
 
@@ -66,15 +67,11 @@ export const createItem = async (
   boardId: string,
   sectionId: string,
   content: string,
-  createdBy: string,
-  createdByName: string,
 ): Promise<RetroItem> => {
   const { data } = await api.post('/retro/items', {
     boardId,
     sectionId,
     content,
-    createdBy,
-    createdByName,
   });
   return data;
 };

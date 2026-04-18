@@ -14,7 +14,7 @@ async function getApp(): Promise<INestApplication> {
     app.enableCors({
       origin: '*',
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id', 'x-user-name'],
     });
 
     app.useGlobalPipes(
