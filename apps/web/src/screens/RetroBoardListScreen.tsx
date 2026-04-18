@@ -45,7 +45,7 @@ const RetroBoardListScreen: React.FC<RetroBoardListScreenProps> = ({
     }
     setCreating(true);
     try {
-      await createBoard(newTitle.trim(), userId, userName);
+      await createBoard(newTitle.trim(), userId);
       setNewTitle('');
       setIsCreating(false);
       setError('');

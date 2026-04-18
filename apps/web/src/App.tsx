@@ -5,21 +5,31 @@ import RetroBoardDetailScreen from './screens/RetroBoardDetailScreen';
 
 type View = 'list' | 'detail';
 
+const generateUserId = (): string => {
+  return 'user_' + Math.random().toString(36).slice(2, 11) + Date.now().toString(36);
+};
+
 const App: React.FC = () => {
   const [userName, setUserName] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string>('');
   const [currentView, setCurrentView] = useState<View>('list');
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('retroUserName');
-    if (stored) {
-      setUserName(stored);
+    const storedName = localStorage.getItem('retroUserName');
+    const storedId = localStorage.getItem('retroUserId');
+    if (storedName && storedId) {
+      setUserName(storedName);
+      setUserId(storedId);
     }
   }, []);
 
   const handleUserSetup = (name: string) => {
+    const newUserId = generateUserId();
     localStorage.setItem('retroUserName', name);
+    localStorage.setItem('retroUserId', newUserId);
     setUserName(name);
+    setUserId(newUserId);
   };
 
   const handleSelectBoard = (boardId: string) => {
@@ -41,7 +51,7 @@ const App: React.FC = () => {
       {currentView === 'list' && (
         <RetroBoardListScreen
           userName={userName}
-          userId={userName}
+          userId={userId}
           onSelectBoard={handleSelectBoard}
         />
       )}
@@ -49,7 +59,7 @@ const App: React.FC = () => {
         <RetroBoardDetailScreen
           boardId={selectedBoardId}
           userName={userName}
-          userId={userName}
+          userId={userId}
           onBack={handleBack}
         />
       )}

@@ -15,9 +15,8 @@ export const getBoards = async (): Promise<RetroBoard[]> => {
 export const createBoard = async (
   title: string,
   createdBy: string,
-  createdByName: string,
 ): Promise<RetroBoard> => {
-  const { data } = await api.post('/retro/boards', { title, createdBy, createdByName });
+  const { data } = await api.post('/retro/boards', { title, createdBy });
   return data;
 };
 

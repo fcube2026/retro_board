@@ -8,8 +8,4 @@ export class CreateBoardDto {
   @IsString()
   @IsNotEmpty()
   createdBy: string;
-
-  @IsString()
-  @IsNotEmpty()
-  createdByName: string;
 }
