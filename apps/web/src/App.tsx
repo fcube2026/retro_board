@@ -6,7 +6,7 @@ import RetroBoardDetailScreen from './screens/RetroBoardDetailScreen';
 type View = 'list' | 'detail';
 
 const generateUserId = (): string => {
-  return 'user_' + Math.random().toString(36).slice(2, 11) + Date.now().toString(36);
+  return 'user_' + crypto.randomUUID().replace(/-/g, '').slice(0, 16);
 };
 
 const App: React.FC = () => {
