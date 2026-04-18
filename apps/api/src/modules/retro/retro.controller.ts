@@ -76,7 +76,12 @@ export class RetroController {
 
   @Post('items')
   createItem(@Body() dto: CreateItemDto, @Req() req: any) {
-    return this.retroService.createItem(dto, this.getUser(req));
+    const serverUser = this.getUser(req);
+    const user = {
+      id: dto.createdBy || serverUser.id,
+      name: dto.createdByName || serverUser.name,
+    };
+    return this.retroService.createItem(dto, user);
   }
 
   @Get('items/:boardId')
