@@ -1,42 +1,70 @@
-# 🧩 Retro Board – Collaborative Sprint Retrospective System
+# 🧩 Retro Board — Collaborative Sprint Retrospective System
 
 ## 🚀 Overview
 
-Retro Board is a **production-grade collaborative retrospective tool** that enables teams to reflect, improve, and collaborate after each sprint.
+Retro Board is a **production-grade collaborative retrospective platform** that enables teams to reflect on sprint outcomes, capture feedback, and drive continuous improvement.
 
-It allows users to:
+The system supports:
 
-* Create retrospective boards
-* Add categorized feedback (Went Well, Improve, Action Items)
-* Track **who added each item**
-* Collaborate with multiple users
-* Persist data in a database
-* View updates in real-time / near real-time
+* Dynamic retrospective boards
+* Flexible sections (customizable categories)
+* Unlimited collaborative inputs (cards)
+* User attribution for every entry
+* Persistent storage with real-time or near real-time updates
 
 ---
 
-## 🎯 Key Features
+## 🎯 Core Capabilities
 
-### ✅ Core Capabilities
+### 🧠 Retrospective Workflow
 
-* Create and manage Retro Boards
-* Add unlimited items per category
-* Categorize feedback:
+* Create sprint retrospective boards
+* Organize feedback into sections (e.g., Went Well, Improve, Action Items)
+* Add unlimited cards per section
+* Capture **who added each item**
+* Enable multi-user collaboration
 
-  * Went Well
-  * To Improve
-  * Action Items
-* Display **"Added by [User Name]"**
-* Multi-user collaboration
-* Persistent storage (no mock data)
+---
 
-### ⚡ Advanced Features
+## ✨ Key Features
 
-* Clean modular backend (NestJS)
-* DTO validation using `class-validator`
-* JWT-based (or basic) user context
-* Scalable architecture
-* Optional real-time updates (polling / WebSockets)
+### 🔹 Dynamic Sections
+
+* Default sections:
+
+  * ✅ What went well
+  * ❌ What didn’t go well
+  * 🔧 Action items / Improvements
+* Fully customizable:
+
+  * Add unlimited sections
+  * Rename / delete sections
+  * Reorder sections
+  * No hardcoded limits
+
+### 🔹 Cards (Items)
+
+* Unlimited cards per section
+* Multiple users can contribute simultaneously
+* Edit and delete support
+* Metadata:
+
+  * Content (mandatory)
+  * Created by (userId + userName)
+  * Timestamp
+
+### 🔹 Multi-User Collaboration
+
+* Concurrent user participation
+* Real-time or near real-time updates (polling / WebSockets)
+
+### 🔹 User Attribution (Mandatory)
+
+Every card displays:
+
+```
+"Added by [User Name]"
+```
 
 ---
 
@@ -45,7 +73,7 @@ It allows users to:
 ### Backend
 
 * Node.js
-* NestJS
+* NestJS (modular architecture)
 * Prisma ORM
 * PostgreSQL (or compatible DB)
 
@@ -86,16 +114,28 @@ createdBy     String
 createdAt     DateTime @default(now())
 ```
 
+### RetroSection
+
+```
+id            String   @id @default(uuid())
+boardId       String
+title         String
+order         Int
+createdBy     String
+createdAt     DateTime @default(now())
+```
+
 ### RetroItem
 
 ```
 id              String   @id @default(uuid())
 boardId         String
+sectionId       String
 content         String
-category        String   // WENT_WELL | IMPROVE | ACTION
 createdBy       String
-createdByName   String   // IMPORTANT
+createdByName   String   // REQUIRED
 createdAt       DateTime @default(now())
+updatedAt       DateTime?
 ```
 
 ---
@@ -110,16 +150,28 @@ createdAt       DateTime @default(now())
 | GET    | /retro/boards     | List boards       |
 | GET    | /retro/boards/:id | Get board details |
 
-### Items
+### Sections
+
+| Method | Endpoint                 | Description      |
+| ------ | ------------------------ | ---------------- |
+| POST   | /retro/sections          | Create section   |
+| PATCH  | /retro/sections/:id      | Update section   |
+| DELETE | /retro/sections/:id      | Delete section   |
+| PATCH  | /retro/sections/reorder  | Reorder sections |
+| GET    | /retro/sections/:boardId | List sections    |
+
+### Items (Cards)
 
 | Method | Endpoint              | Description |
 | ------ | --------------------- | ----------- |
 | POST   | /retro/items          | Add item    |
 | GET    | /retro/items/:boardId | List items  |
+| PATCH  | /retro/items/:id      | Update item |
+| DELETE | /retro/items/:id      | Delete item |
 
 ---
 
-## 🔐 Authentication
+## 🔐 Authentication & User Context
 
 * JWT-based authentication (recommended)
 * Each request extracts:
@@ -127,79 +179,93 @@ createdAt       DateTime @default(now())
   * `userId`
   * `userName`
 
-If auth is not ready:
+If authentication is not available:
 
-* Use temporary user context (hardcoded or input-based)
+* Implement temporary user context (fallback)
+* Do NOT skip storing creator details
 
 ---
 
 ## 🔄 Data Flow
 
 ```
-Frontend → API → Service → Database → Response → UI
+Frontend → API → Controller → Service → Database → Response → UI
 ```
 
-* No direct DB calls from frontend
+* No direct DB access from frontend
 * No mock data allowed
 
 ---
 
-## 🎨 Frontend Features
+## 🎨 Frontend Requirements
 
 ### Screens
 
-#### 1. RetroBoardListScreen
+* **RetroBoardListScreen**
 
-* List all boards
-* Create new board
+  * List boards
+  * Create new board
 
-#### 2. RetroBoardDetailScreen
+* **RetroBoardDetailScreen**
 
-* View board details
-* Add items
-* View categorized items
+  * View board
+  * Manage sections
+  * Add/edit/delete cards
 
 ### UI Requirements
 
-Each item displays:
+Each card must display:
 
 * Content
-* Category
-* 👤 Added by [User Name]
+* Section
+* **Added by [User Name]**
 * Timestamp (optional)
 
 Example:
 
 ```
-"Improve API error handling"
+Improve API error handling  
 → Added by Nandini
 ```
+
+---
+
+## ⚡ Real-Time Updates (Recommended)
+
+* Polling OR WebSockets
+* Users see updates without manual refresh
+* Handle concurrent updates safely
 
 ---
 
 ## 🧪 Testing Checklist
 
 * [ ] Board creation works
+* [ ] Section CRUD works
+* [ ] Section reordering works
 * [ ] Item creation works
+* [ ] Item edit/delete works
 * [ ] Data persists after refresh
-* [ ] User name is displayed correctly
-* [ ] Multiple users show different names
+* [ ] Correct user attribution displayed
+* [ ] Multiple users show correct names
+* [ ] No data loss during concurrent usage
 
 ---
 
 ## 📁 Code Quality Guidelines
 
-* Use DTO validation (`class-validator`)
 * Follow NestJS architecture (Controller → Service → DB)
+* Use DTO validation (`class-validator`)
 * Keep components modular
+* Reuse existing API client
+* Follow naming conventions
 * Avoid unnecessary complexity
-* Reuse API clients
 
 ---
 
 ## ⚙️ Setup Instructions
 
-### 1. Clone Repo
+### 1. Clone Repository
 
 ```bash
 git clone <repo-url>
@@ -212,7 +278,7 @@ cd project
 pnpm install
 ```
 
-### 3. Setup Environment Variables
+### 3. Configure Environment Variables
 
 ```
 DATABASE_URL=
@@ -239,35 +305,38 @@ pnpm start
 
 ---
 
-## 🚀 Bonus Enhancements
+## 🚀 Future Enhancements
 
-* 🔄 Real-time updates (WebSockets)
-* ✏️ Edit/Delete items
-* 🎨 Category color coding
-* 📊 Analytics (future scope)
+* Drag-and-drop cards and sections
+* Real-time collaboration via WebSockets
+* Section color coding
+* Board templates
+* Analytics & reporting
 
 ---
 
-## 🎯 Final Goal
+## 🎯 Final Outcome
 
-A fully functional Retro Board where:
+A fully functional Retro Board system where:
 
-* Teams collaborate effectively
+* Teams collaborate efficiently
+* Sections and cards are fully dynamic
+* Every entry tracks its creator
 * Data persists reliably
-* Every item shows **who added it**
-* Backend & frontend are seamlessly connected
+* Backend and frontend are seamlessly integrated
 * System is scalable and production-ready
 
 ---
 
-## 🤝 Contribution
+## 🤝 Contribution Guidelines
 
-* Follow coding standards
-* Write clean commits
-* Add PR description with screenshots (if UI changes)
+* Follow clean code practices
+* Maintain modular structure
+* Include PR description and screenshots (for UI changes)
+* Ensure all features are tested before submission
 
 ---
 
-## 📌 License
+## 📄 License
 
 MIT License
