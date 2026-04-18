@@ -15,6 +15,7 @@ const RetroBoardListScreen: React.FC<RetroBoardListScreenProps> = ({
 }) => {
   const [boards, setBoards] = useState<RetroBoard[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [creating, setCreating] = useState(false);
@@ -24,8 +25,10 @@ const RetroBoardListScreen: React.FC<RetroBoardListScreenProps> = ({
     try {
       const data = await getBoards();
       setBoards(data);
+      setFetchError('');
     } catch (err) {
       console.error('Failed to fetch boards:', err);
+      setFetchError('Could not connect to the server. Please ensure the backend is running.');
     } finally {
       setLoading(false);
     }
@@ -45,7 +48,7 @@ const RetroBoardListScreen: React.FC<RetroBoardListScreenProps> = ({
     }
     setCreating(true);
     try {
-      await createBoard(newTitle.trim(), userId);
+      await createBoard(newTitle.trim(), userName);
       setNewTitle('');
       setIsCreating(false);
       setError('');
@@ -109,6 +112,12 @@ const RetroBoardListScreen: React.FC<RetroBoardListScreenProps> = ({
       {/* Board list */}
       {loading ? (
         <div style={loadingStyle}>Loading boards...</div>
+      ) : fetchError ? (
+        <div style={errorStyle}>
+          <p style={{ fontSize: 40, marginBottom: 12 }}>⚠️</p>
+          <p style={{ color: '#e53e3e', fontWeight: 600, marginBottom: 8 }}>{fetchError}</p>
+          <button onClick={() => fetchBoards()} style={retryButtonStyle}>Retry</button>
+        </div>
       ) : boards.length === 0 ? (
         <div style={emptyStyle}>
           <p style={{ fontSize: 48, marginBottom: 16 }}>🗒️</p>
@@ -215,6 +224,26 @@ const loadingStyle: React.CSSProperties = {
   padding: '60px',
   color: '#666',
   fontSize: 16,
+};
+
+const errorStyle: React.CSSProperties = {
+  textAlign: 'center',
+  padding: '60px 24px',
+  backgroundColor: '#fff5f5',
+  borderRadius: 12,
+  border: '2px dashed #feb2b2',
+};
+
+const retryButtonStyle: React.CSSProperties = {
+  padding: '8px 20px',
+  fontSize: 14,
+  fontWeight: 600,
+  backgroundColor: '#6366f1',
+  color: '#fff',
+  border: 'none',
+  borderRadius: 8,
+  cursor: 'pointer',
+  marginTop: 8,
 };
 
 const emptyStyle: React.CSSProperties = {

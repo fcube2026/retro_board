@@ -20,16 +20,20 @@ const RetroBoardDetailScreen: React.FC<RetroBoardDetailScreenProps> = ({
 }) => {
   const [board, setBoard] = useState<RetroBoard | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
   const [isAddingSection, setIsAddingSection] = useState(false);
   const [newSectionTitle, setNewSectionTitle] = useState('');
   const [addingSection, setAddingSection] = useState(false);
+  const [sectionError, setSectionError] = useState('');
 
   const fetchBoard = useCallback(async () => {
     try {
       const data = await getBoardById(boardId);
       setBoard(data);
+      setFetchError('');
     } catch (err) {
       console.error('Failed to fetch board:', err);
+      setFetchError('Failed to load board. Please check your connection.');
     } finally {
       setLoading(false);
     }
@@ -45,24 +49,36 @@ const RetroBoardDetailScreen: React.FC<RetroBoardDetailScreenProps> = ({
     e.preventDefault();
     if (!newSectionTitle.trim()) return;
     setAddingSection(true);
+    setSectionError('');
     try {
-      await createSection(boardId, newSectionTitle.trim(), userId);
+      await createSection(boardId, newSectionTitle.trim(), userName);
       setNewSectionTitle('');
       setIsAddingSection(false);
       fetchBoard();
+    } catch (err) {
+      console.error('Failed to create section:', err);
+      setSectionError('Failed to create section. Please try again.');
     } finally {
       setAddingSection(false);
     }
   };
 
   const handleUpdateSection = async (id: string, title: string) => {
-    await updateSection(id, { title });
-    fetchBoard();
+    try {
+      await updateSection(id, { title });
+      fetchBoard();
+    } catch (err) {
+      console.error('Failed to update section:', err);
+    }
   };
 
   const handleDeleteSection = async (id: string) => {
-    await deleteSection(id);
-    fetchBoard();
+    try {
+      await deleteSection(id);
+      fetchBoard();
+    } catch (err) {
+      console.error('Failed to delete section:', err);
+    }
   };
 
   const handleAddItem = async (sectionId: string, content: string) => {
@@ -71,13 +87,21 @@ const RetroBoardDetailScreen: React.FC<RetroBoardDetailScreenProps> = ({
   };
 
   const handleUpdateItem = async (id: string, content: string) => {
-    await updateItem(id, { content });
-    fetchBoard();
+    try {
+      await updateItem(id, { content });
+      fetchBoard();
+    } catch (err) {
+      console.error('Failed to update item:', err);
+    }
   };
 
   const handleDeleteItem = async (id: string) => {
-    await deleteItem(id);
-    fetchBoard();
+    try {
+      await deleteItem(id);
+      fetchBoard();
+    } catch (err) {
+      console.error('Failed to delete item:', err);
+    }
   };
 
   const getItemsForSection = (sectionId: string): RetroItem[] => {
@@ -98,11 +122,17 @@ const RetroBoardDetailScreen: React.FC<RetroBoardDetailScreenProps> = ({
   if (!board) {
     return (
       <div style={loadingContainerStyle}>
-        <p>Board not found.</p>
+        {fetchError ? (
+          <p style={{ color: '#e53e3e', marginBottom: 16 }}>{fetchError}</p>
+        ) : (
+          <p>Board not found.</p>
+        )}
         <button onClick={onBack} style={backButtonStyle}>Go Back</button>
       </div>
     );
   }
+
+  const totalCards = board.sections?.reduce((sum, s) => sum + (s.items?.length ?? 0), 0) ?? 0;
 
   return (
     <div style={pageStyle}>
@@ -116,7 +146,7 @@ const RetroBoardDetailScreen: React.FC<RetroBoardDetailScreenProps> = ({
             {board.title}
           </h1>
           <p style={{ margin: '2px 0 0', fontSize: 13, color: '#888' }}>
-            Created by {board.createdBy} · {board.sections?.length ?? 0} sections · {board.items?.length ?? 0} cards total
+            Created by {board.createdBy} · {board.sections?.length ?? 0} sections · {totalCards} cards total
           </p>
         </div>
         <button
@@ -130,22 +160,23 @@ const RetroBoardDetailScreen: React.FC<RetroBoardDetailScreenProps> = ({
       {/* Add section form */}
       {isAddingSection && (
         <div style={addSectionFormStyle}>
-          <form onSubmit={handleAddSection} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <form onSubmit={handleAddSection} style={addSectionFormRowStyle}>
             <input
               type="text"
               placeholder="Section title..."
               value={newSectionTitle}
-              onChange={(e) => setNewSectionTitle(e.target.value)}
+              onChange={(e) => { setNewSectionTitle(e.target.value); setSectionError(''); }}
               style={sectionInputStyle}
               autoFocus
             />
             <button type="submit" disabled={addingSection} style={sectionSubmitButtonStyle}>
               {addingSection ? '...' : 'Add'}
             </button>
-            <button type="button" onClick={() => { setIsAddingSection(false); setNewSectionTitle(''); }} style={sectionCancelButtonStyle}>
+            <button type="button" onClick={() => { setIsAddingSection(false); setNewSectionTitle(''); setSectionError(''); }} style={sectionCancelButtonStyle}>
               Cancel
             </button>
           </form>
+          {sectionError && <p style={{ color: '#e53e3e', fontSize: 12, marginTop: 6 }}>{sectionError}</p>}
         </div>
       )}
 
@@ -223,6 +254,13 @@ const addSectionFormStyle: React.CSSProperties = {
   padding: '12px 24px',
   backgroundColor: '#f8f8fc',
   borderBottom: '1px solid #e2e8f0',
+};
+
+const addSectionFormRowStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: 12,
+  alignItems: 'center',
+  flexWrap: 'wrap',
 };
 
 const sectionInputStyle: React.CSSProperties = {
